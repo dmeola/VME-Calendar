@@ -7,7 +7,7 @@
 *
 */
 //model
-$scope = {
+_scope = {
 	"events":[
 
 	]
@@ -18,7 +18,7 @@ calendarCreator = {
 	dateConvertor : function(date){
 		dateTime = date.split("\n");
 		date = dateTime[1];
-		time = dateTime[2].replace(/:00+/gi, ':00 ').replace(/:50+/gi, ':50 ').split("-");
+		time = dateTime[2].replace(/:00+/gi, ':00 ').replace(/:10+/gi, ':10 ').replace(/:20+/gi, ':20 ').replace(/:30+/gi, ':30 ').replace(/:40+/gi, ':40 ').replace(/:50+/gi, ':50 ').split("-");
 		//make sure event has a time before converting to ISO Date format
 		if(time != "") {
 			start = new Date(Date.parse(date+' '+time[0])).toISOString();
@@ -52,11 +52,11 @@ calendarCreator = {
 			calendarCreator.storeEvent(index, start, end, title, description, eventLocation);
 		});
 	},
-	//stores events in $scope
+	//stores events in _scope
 	storeEvent : function(index, start, end, title, description, location){
 		if(type == 'dateTime') {
 			//dateType = "dateTime";
-			$scope.events[index] = {
+			_scope.events[index] = {
 				"start" : {"dateTime" : start},
 				"end" : {"dateTime" : end},
 				"summary" : title,
@@ -64,8 +64,7 @@ calendarCreator = {
 				"location" : location
 			}
 		} else {	//All day event (no start and end time)
-			//dateType = "date";
-			$scope.events[index] = {
+			_scope.events[index] = {
 				"start" : {"date" : start},
 				"end" : {"date" : end},
 				"summary" : title,
@@ -82,10 +81,14 @@ calendarCreator = {
 	//initialize
 	init : function(){
 		jQuery.getScript("https://apis.google.com/js/client.js?onload=handleClientLoad").done(function(){
-			jQuery.getScript("https://raw.githubusercontent.com/creativecouple/jquery-timing/master/jquery-timing.min.js").done(function(){
+			jQuery.getScript("https://rawgit.com/creativecouple/jquery-timing/master/jquery-timing.min.js").done(function(){
+				//prompt user for calendar ID and API key
+				_scope.calendarId = prompt("Please enter your google calendar ID","");
+				_scope.apiKey = prompt("Please enter the API key","");
+				//scrape DOM for event data
 				calendarCreator.parseDom();
-				calendarCreator.createEvent($scope.events);
-				console.log('external js loaded');
+				//add events to calendar
+				calendarCreator.createEvent(_scope.events);
 			})
 		});		//load google api connector
 		//jQuery.getScript("calendar.js").done(function(){console.log('calendar loaded')});		//load calendar connector
@@ -96,9 +99,9 @@ calendarCreator.init();
 
 //CALENDAR
 var clientId = '986209927278-26j8h40ti147efmsvm8v5rca9qq784eu.apps.googleusercontent.com';
-var apiKey = 'AIzaSyBu1dZIfedJKxib2rk6-jvQ24ntCSCfgis';
 var scopes = 'https://www.googleapis.com/auth/calendar';
-calendarId = 't838c173uokccohj7nv7qjm218@group.calendar.google.com';
+//var apiKey = 'AIzaSyDgHYMRWdGFo_8Xi1styqVBcF6oUlNquUc';
+//calendarId = 'c3q7fg5m5dauvssurjbd3rd7f8@group.calendar.google.com';
 
 function handleClientLoad() {
   gapi.client.setApiKey(apiKey);
@@ -138,7 +141,7 @@ function makeApiCall(calendarEvents) {
 			console.log(calendarEvent.summary);
 			gapi.client.load('calendar', 'v3', function() {
 			    var request = gapi.client.calendar.events.insert({
-			    	"calendarId" : calendarId,
+			    	"calendarId" : _scope.calendarId,
 			    	"resource" : calendarEvent
 			    });
 			    //Google API 1 second rate limit
@@ -149,6 +152,8 @@ function makeApiCall(calendarEvents) {
 		}, counter*1000+1000)
 	})
 }
+
+handleAuthClick();
 
     //list events
  //  gapi.client.load('calendar', 'v3', function() {
@@ -165,5 +170,3 @@ function makeApiCall(calendarEvents) {
  //    });
  // });
 
-
-handleAuthClick();
