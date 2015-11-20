@@ -80,11 +80,11 @@ calendarCreator = {
 	},
 	//initialize
 	init : function(){
+		//prompt user for calendar ID and API key
+		_scope.calendarId = prompt("Please enter your google calendar ID","");
+		_scope.apiKey = prompt("Please enter the API key","");
 		jQuery.getScript("https://apis.google.com/js/client.js?onload=handleClientLoad").done(function(){
 			jQuery.getScript("https://rawgit.com/creativecouple/jquery-timing/master/jquery-timing.min.js").done(function(){
-				//prompt user for calendar ID and API key
-				_scope.calendarId = prompt("Please enter your google calendar ID","");
-				_scope.apiKey = prompt("Please enter the API key","");
 				//scrape DOM for event data
 				calendarCreator.parseDom();
 				//add events to calendar
@@ -104,7 +104,7 @@ var scopes = 'https://www.googleapis.com/auth/calendar';
 //calendarId = 'c3q7fg5m5dauvssurjbd3rd7f8@group.calendar.google.com';
 
 function handleClientLoad() {
-  gapi.client.setApiKey(apiKey);
+  gapi.client.setApiKey(_scope.apiKey);
   window.setTimeout(checkAuth,1);
   checkAuth();
 }
